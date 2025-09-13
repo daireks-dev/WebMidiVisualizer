@@ -1,0 +1,13 @@
+# Node / frontend stuff
+frontend/node_modules/
+frontend/.next/
+frontend/dist/
+
+# Java / backend stuff
+backend/target/
+backend/.idea/
+backend/*.iml
+
+# OS / misc
+.DS_Store
+*.log
