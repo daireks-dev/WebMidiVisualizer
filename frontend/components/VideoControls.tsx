@@ -1,6 +1,6 @@
 export default function VideoControls() {
     return (
-        <div className="border-white border-1 w-full h-[4rem]">
+        <div className="bg-[#71AB94] w-full aspect-[13/1] drop-shadow-2xl">
 
         </div>
     )

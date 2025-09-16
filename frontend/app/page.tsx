@@ -1,8 +1,8 @@
 "use client";
 // pages/index.js
 import { useState } from "react";
-import MidiSettings from "../components/MidiSettings";
-import Visualizer from "../components/Visualizer";
+import MidiSettings from "../components/Old/MidiSettings";
+import Visualizer from "../components/Old/Visualizer";
 
 export default function Home() {
   return (
