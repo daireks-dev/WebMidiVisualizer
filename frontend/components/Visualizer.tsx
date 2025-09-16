@@ -3,6 +3,7 @@ import { Midi } from "@tonejs/midi";
 
 export default function Visualizer() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const pianoRef = useRef<HTMLCanvasElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const [notes, setNotes] = useState<any[]>([]);
@@ -13,7 +14,7 @@ export default function Visualizer() {
   const animationRef = useRef<number>(0);
   const startTimeRef = useRef<number>(0);
 
-  // MIDI file input
+  // Load MIDI file
   useEffect(() => {
     const input = inputRef.current;
     if (!input) return;
@@ -21,6 +22,7 @@ export default function Visualizer() {
     const handleChange = async (event: Event) => {
       const target = event.target as HTMLInputElement | null;
       if (!target?.files?.length) return;
+
       const file = target.files[0];
       const arrayBuffer = await file.arrayBuffer();
       const midi = new Midi(arrayBuffer);
@@ -40,43 +42,114 @@ export default function Visualizer() {
     return () => input.removeEventListener("change", handleChange);
   }, []);
 
-  // Drawing & scrolling
+  // Helper: check if MIDI note is black key
+  const isBlackKey = (midi: number) => {
+    return [1, 3, 6, 8, 10].includes(midi % 12);
+  };
+
+  // Shared helper: key metrics
+  const getKeyMetrics = (
+    minNote: number,
+    maxNote: number,
+    height: number,
+    yPadding: number
+  ) => {
+    const totalKeys = maxNote - minNote + 1;
+    const keyHeight = (height - 2 * yPadding) / totalKeys;
+    return { totalKeys, keyHeight };
+  };
+
+  // Draw piano keys
+  const drawPiano = (
+    ctx: CanvasRenderingContext2D,
+    minNote: number,
+    maxNote: number,
+    currentTime: number
+  ) => {
+    const width = ctx.canvas.clientWidth;
+    const height = ctx.canvas.clientHeight;
+    const { totalKeys, keyHeight } = getKeyMetrics(minNote, maxNote, height, yPadding);
+
+    for (let i = 0; i < totalKeys; i++) {
+      const midi = minNote + i;
+      const isActive = notes.some(
+        (note) =>
+          note.midi === midi &&
+          currentTime >= note.time &&
+          currentTime <= note.time + note.duration
+      );
+
+      ctx.fillStyle = isActive
+        ? "blue"
+        : isBlackKey(midi)
+        ? "black"
+        : "white";
+      
+      ctx.strokeStyle = ctx.fillStyle
+
+      const y = yPadding + (totalKeys - i - 1) * keyHeight;
+      if (isBlackKey(midi)) {
+        ctx.fillRect(0, y, width * (2/3.0), keyHeight);
+        ctx.strokeRect(0, y, width * (2/3.0), keyHeight);
+      }
+      else {
+        ctx.fillRect(0, y, width, keyHeight);
+        ctx.strokeRect(0, y, width, keyHeight);
+      }
+    }
+  };
+
+  // Main animation loop
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const piano = pianoRef.current;
+    if (!canvas || !piano) return;
+
     const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const pianoCtx = piano.getContext("2d");
+    if (!ctx || !pianoCtx) return;
 
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = canvas.clientWidth * dpr;
-    canvas.height = canvas.clientHeight * dpr;
+
+    // Scale both canvases for high-DPI
+    [canvas, piano].forEach((c) => {
+      c.width = c.clientWidth * dpr;
+      c.height = c.clientHeight * dpr;
+    });
+
     ctx.scale(dpr, dpr);
+    pianoCtx.scale(dpr, dpr);
 
     const draw = () => {
-      if (!ctx) return;
+      const currentTime = (performance.now() - startTimeRef.current) / 1000;
 
-      const currentTime = ((performance.now() - startTimeRef.current) / 1000);
+      // Clear main canvas
       ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
-
-      const width = canvas.clientWidth - 2; // optional left/right padding
-      const height = canvas.clientHeight - 2 * yPadding;
+      const width = canvas.clientWidth - 2;
+      const height = canvas.clientHeight;
 
       if (notes.length) {
-        const minNote = Math.min(...notes.map(n => n.midi));
-        const maxNote = Math.max(...notes.map(n => n.midi));
+        const minNote = Math.min(...notes.map((n) => n.midi));
+        const maxNote = Math.max(...notes.map((n) => n.midi));
+        const { keyHeight } = getKeyMetrics(minNote, maxNote, height, yPadding);
 
-        notes.forEach(note => {
-          const x = ((note.time - currentTime) / zoom) * width + 1; // small left padding
+        // Draw piano-roll notes
+        notes.forEach((note) => {
+          const x = ((note.time - currentTime) / zoom) * width + 1;
           const w = (note.duration / zoom) * width;
 
-          if (x + w < 0 || x > width) return; // skip offscreen
+          if (x + w < 0 || x > width) return;
 
-          const y = yPadding + height - ((note.midi - minNote) / (maxNote - minNote)) * height;
-          const h = 5;
+          const index = note.midi - minNote;
+          const y = yPadding + (maxNote - note.midi) * keyHeight;
 
           ctx.fillStyle = "blue";
-          ctx.fillRect(x, y - h / 2, w, h);
+          ctx.fillRect(x, y, w, keyHeight);
         });
+
+        // Draw piano
+        pianoCtx.clearRect(0, 0, piano.clientWidth, piano.clientHeight);
+        drawPiano(pianoCtx, minNote, maxNote, currentTime);
       }
 
       animationRef.current = requestAnimationFrame(draw);
@@ -93,14 +166,27 @@ export default function Visualizer() {
   }, [isPlaying, notes, zoom, yPadding]);
 
   return (
-    <div className="w-full max-w-3xl flex flex-col gap-2">
-      <canvas
-        ref={canvasRef}
-        className="w-full bg-gray-300 aspect-video"
-        style={{ display: "block" }}
-      />
+    <div className="bg-gray-400 w-full max-w-4xl mx-auto flex flex-col gap-2">
+      <div className="flex gap-2 w-full">
+        {/* Fixed vertical piano keys */}
+        <div className="relative w-16 aspect-video">
+          <canvas
+            ref={pianoRef}
+            className="absolute inset-0 w-full h-full bg-gray-100"
+          />
+        </div>
 
-      <div className="flex flex-wrap gap-4 items-center">
+        {/* Main piano-roll canvas */}
+        <div className="relative flex-1 aspect-video">
+          <canvas
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full bg-gray-300"
+          />
+        </div>
+      </div>
+
+      {/* Controls */}
+      <div className="flex flex-wrap gap-4 items-center mt-2">
         <button
           className="px-2 py-1 bg-blue-500 text-white rounded"
           onClick={() => setIsPlaying(!isPlaying)}
@@ -108,7 +194,7 @@ export default function Visualizer() {
           {isPlaying ? "Pause" : "Play"}
         </button>
 
-        <label className="text-gray-500 flex items-center gap-1">
+        <label className="flex items-center gap-1">
           Zoom (seconds per width):
           <input
             type="number"
@@ -116,12 +202,12 @@ export default function Visualizer() {
             min={1}
             max={30}
             step={0.5}
-            className="text-gray-500 border rounded px-1"
+            className="border rounded px-1"
             onChange={(e) => setZoom(parseFloat(e.target.value))}
           />
         </label>
 
-        <label className="text-gray-500 flex items-center gap-1">
+        <label className="flex items-center gap-1">
           Y Padding (px):
           <input
             type="number"
@@ -129,7 +215,7 @@ export default function Visualizer() {
             min={0}
             max={100}
             step={1}
-            className="text-gray-500 border rounded px-1"
+            className="border rounded px-1"
             onChange={(e) => setYPadding(parseFloat(e.target.value))}
           />
         </label>
