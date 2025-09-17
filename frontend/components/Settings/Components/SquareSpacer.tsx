@@ -1,3 +1,4 @@
+'use client';
 interface SpacerProps {
   isVisible: boolean
 }

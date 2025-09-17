@@ -1,5 +1,5 @@
 interface ButtonProps {
-  color: string
+  color: string 
 }
 
 export default function ColorButton({color}: ButtonProps) {

@@ -1,3 +1,4 @@
+'use client';
 interface LabelProps {
   text: string    // optional prop
 }

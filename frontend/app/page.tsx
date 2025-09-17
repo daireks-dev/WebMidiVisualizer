@@ -3,6 +3,7 @@
 import { useState } from "react";
 import MidiSettings from "../components/Old/MidiSettings";
 import Visualizer from "../components/Old/Visualizer";
+import { ColorPicker } from "@/components/ui/shadcn-io/color-picker";
 
 export default function Home() {
   return (

@@ -1,3 +1,4 @@
+'use client';
 import BackgroundColor from "../Settings/BackgroundColor";
 import ToggleSettings from "./ToggleSettings";
 import TrackColors from "./TrackColors";

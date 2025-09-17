@@ -1,3 +1,4 @@
+'use client';
 import ColorButton from "./Components/ColorButton";
 import SquareLabel from "./Components/SquareLabel";
 

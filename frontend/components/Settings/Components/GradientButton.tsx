@@ -1,3 +1,4 @@
+'use client';
 import SquareSpacer from "./SquareSpacer"
 
 interface ButtonProps {
