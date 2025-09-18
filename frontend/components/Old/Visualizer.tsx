@@ -4,15 +4,15 @@ import { Midi } from "@tonejs/midi";
 import { X } from "lucide-react";
 
 interface Props {
-  isPlaying: boolean
+  isPlaying: boolean,
   xStretch: number,
-  yPadding: number
+  yPadding: number,
+  inputRef: React.RefObject<HTMLInputElement | null>
 }
 
-export default function Visualizer({isPlaying, xStretch, yPadding}: Props) {
+export default function Visualizer({isPlaying, xStretch, yPadding, inputRef}: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const pianoRef = useRef<HTMLCanvasElement | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const [notes, setNotes] = useState<any[]>([]);
 
@@ -189,23 +189,6 @@ export default function Visualizer({isPlaying, xStretch, yPadding}: Props) {
           />
         </div>
       </div>
-
-      {/* Controls */}
-      <div className="flex flex-wrap gap-4 items-center mt-2">
-        <button
-          className="px-2 py-1 bg-blue-500 text-white rounded"
-        >
-          {isPlaying ? "Pause" : "Play"}
-        </button>
-
-      </div>
-
-      <input
-        ref={inputRef}
-        type="file"
-        accept=".mid,.midi"
-        className="text-gray-500 mt-2"
-      />
     </div>
   );
 }
