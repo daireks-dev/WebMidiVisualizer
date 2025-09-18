@@ -2,13 +2,16 @@
 import { useEffect, useRef, useState } from "react";
 import { Midi } from "@tonejs/midi";
 
-export default function Visualizer() {
+interface VisualProps {
+    isPlaying: boolean
+}
+
+export default function Visualizer({isPlaying}: VisualProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const pianoRef = useRef<HTMLCanvasElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const [notes, setNotes] = useState<any[]>([]);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [zoom, setZoom] = useState(5); // seconds per width
   const [yPadding, setYPadding] = useState(10); // pixels
 
@@ -184,6 +187,13 @@ export default function Visualizer() {
             className="absolute inset-0 w-full h-full bg-gray-300"
           />
         </div>
+
+        <input
+        ref={inputRef}
+        type="file"
+        accept=".mid,.midi"
+        className="text-gray-500 mt-2"
+      />
       </div>
     </div>
   );

@@ -1,16 +1,20 @@
 'use client';
 import { useEffect, useRef, useState } from "react";
 import { Midi } from "@tonejs/midi";
+import { X } from "lucide-react";
 
-export default function Visualizer() {
+interface Props {
+  isPlaying: boolean
+  xStretch: number,
+  yPadding: number
+}
+
+export default function Visualizer({isPlaying, xStretch, yPadding}: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const pianoRef = useRef<HTMLCanvasElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const [notes, setNotes] = useState<any[]>([]);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [zoom, setZoom] = useState(5); // seconds per width
-  const [yPadding, setYPadding] = useState(10); // pixels
 
   const animationRef = useRef<number>(0);
   const startTimeRef = useRef<number>(0);
@@ -136,8 +140,8 @@ export default function Visualizer() {
 
         // Draw piano-roll notes
         notes.forEach((note) => {
-          const x = ((note.time - currentTime) / zoom) * width + 1;
-          const w = (note.duration / zoom) * width;
+          const x = ((note.time - currentTime) / xStretch) * width + 1;
+          const w = (note.duration / xStretch) * width;
 
           if (x + w < 0 || x > width) return;
 
@@ -164,7 +168,7 @@ export default function Visualizer() {
     }
 
     return () => cancelAnimationFrame(animationRef.current);
-  }, [isPlaying, notes, zoom, yPadding]);
+  }, [isPlaying, notes, xStretch, yPadding]);
 
   return (
     <div className="bg-gray-400 w-full max-w-4xl mx-auto flex flex-col gap-2">
@@ -190,36 +194,10 @@ export default function Visualizer() {
       <div className="flex flex-wrap gap-4 items-center mt-2">
         <button
           className="px-2 py-1 bg-blue-500 text-white rounded"
-          onClick={() => setIsPlaying(!isPlaying)}
         >
           {isPlaying ? "Pause" : "Play"}
         </button>
 
-        <label className="flex items-center gap-1">
-          Zoom (seconds per width):
-          <input
-            type="number"
-            value={zoom}
-            min={1}
-            max={30}
-            step={0.5}
-            className="border rounded px-1"
-            onChange={(e) => setZoom(parseFloat(e.target.value))}
-          />
-        </label>
-
-        <label className="flex items-center gap-1">
-          Y Padding (px):
-          <input
-            type="number"
-            value={yPadding}
-            min={0}
-            max={100}
-            step={1}
-            className="border rounded px-1"
-            onChange={(e) => setYPadding(parseFloat(e.target.value))}
-          />
-        </label>
       </div>
 
       <input
