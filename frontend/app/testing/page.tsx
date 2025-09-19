@@ -10,7 +10,7 @@ export default function HomeTest() {
     const defaultTheme = {
         tracks: ["#B9CBEE", "#E8E7AE", "#B9F3C5", "#C3B1FF", "#EDAA9D"],
         background: ["#B9CBEE", "#87D69D"],
-        keys: ["#FFFFFF", "#000000", "#FFFFFF", "#000000", "#FFFFFF", "#FFFFFF", "#000000", "#FFFFFF", "#000000", "#FFFFFF", "#000000", "#FFFFFF"]
+        keys: ["#666666", "#000000", "#FFFFFF", "#000000", "#FFFFFF", "#FFFFFF", "#000000", "#FFFFFF", "#000000", "#FFFFFF", "#000000", "#FFFFFF"]
     }
 
     const [colors, setColors] = useState(defaultTheme)
