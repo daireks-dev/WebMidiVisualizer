@@ -18,6 +18,8 @@ export default function HomeTest() {
     const [yPadding, setYPadding] = useState(5)
     const [isPlaying, setIsPlaying] = useState(false);
     const inputRef = useRef<HTMLInputElement | null>(null);
+    const [songLength, setSongLength] = useState(0);
+    const [isSeeking, setIsSeeking] = useState(false);
 
     const [currentTime, setCurrentTime] = useState(0)
         
@@ -25,8 +27,8 @@ export default function HomeTest() {
         <div className="bg-[#2C2C2C] w-screen h-full flex justify-center">
             <div className="w-[min(90vh,95%)] h-full my-3 flex flex-col items-center gap-3">
                 <FileInput inputRef={inputRef}/>
-                <Visualizer colors={colors} isPlaying={isPlaying} xStretch={xStretch} yPadding={yPadding} inputRef={inputRef} currentTime={currentTime} setCurrentTime={setCurrentTime}/>
-                <VideoControls isPlaying={isPlaying} setIsPlaying={setIsPlaying} currentTime={currentTime} setCurrentTime={setCurrentTime}/>
+                <Visualizer isSeeking={isSeeking} songLength={songLength} setSongLength={setSongLength} colors={colors} isPlaying={isPlaying} xStretch={xStretch} yPadding={yPadding} inputRef={inputRef} currentTime={currentTime} setCurrentTime={setCurrentTime}/>
+                <VideoControls setIsSeeking={setIsSeeking} songLength={songLength} setSongLength={setSongLength} isPlaying={isPlaying} setIsPlaying={setIsPlaying} currentTime={currentTime} setCurrentTime={setCurrentTime}/>
                 <Settings colors={colors} setColors={setColors} setXStretch={setXStretch} setYPadding={setYPadding} xStretch={xStretch} yPadding={yPadding}/>
             </div>
         </div>

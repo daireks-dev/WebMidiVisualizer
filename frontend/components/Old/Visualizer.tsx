@@ -10,10 +10,13 @@ interface Props {
   inputRef: React.RefObject<HTMLInputElement | null>
   currentTime: number,
   setCurrentTime: (t: number) => void
-  colors: {tracks: string[], background: string[], keys: string[]}
+  colors: {tracks: string[], background: string[], keys: string[]},
+  songLength: number,
+  setSongLength: (v: number) => void,
+  isSeeking: boolean
 }
 
-export default function Visualizer({isPlaying, xStretch, yPadding, inputRef, currentTime, setCurrentTime, colors}: Props) {
+export default function Visualizer({isPlaying, xStretch, yPadding, inputRef, currentTime, setCurrentTime, colors, songLength, setSongLength, isSeeking}: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const pianoRef = useRef<HTMLCanvasElement | null>(null);
   const [notes, setNotes] = useState<any[]>([]);
@@ -227,12 +230,16 @@ export default function Visualizer({isPlaying, xStretch, yPadding, inputRef, cur
 
 // Main loop
 useEffect(() => {
-  const animate = () => {
-    const time = (performance.now() - startTimeRef.current) / 1000;
-    setCurrentTime(time);
-    drawFrame(time);
-    animationRef.current = requestAnimationFrame(animate);
-  };
+    const animate = () => {
+      const time = (performance.now() - startTimeRef.current) / 1000;
+
+      if (!isSeeking) {
+        setCurrentTime(time);
+      }
+
+      drawFrame(isSeeking ? currentTime : time);
+      animationRef.current = requestAnimationFrame(animate);
+    };
 
   if (isPlaying) {
     // resume from paused time
@@ -248,10 +255,25 @@ useEffect(() => {
   return () => cancelAnimationFrame(animationRef.current);
 }, [isPlaying, notes, setCurrentTime]);
 
-  // Update colors while paused
+  // Update drawFrame while paused AND slider moved
   useEffect(() => {
-    if (!isPlaying) drawFrame(pausedTimeRef.current);
-  }, [colors, isPlaying, notes]);
+    if (!isPlaying) {
+      pausedTimeRef.current = currentTime; // sync paused time to slider
+      drawFrame(pausedTimeRef.current);
+    }
+  }, [currentTime, colors, xStretch, yPadding, isPlaying, notes]);
+
+  const getSongLength = (notes: any[]) => {
+    if (!notes.length) return 0;
+    const lastNoteEnd = Math.max(...notes.map(n => n.time + n.duration));
+    return lastNoteEnd; // in seconds
+  };
+
+  useEffect(() => {
+    if (notes.length > 0) {
+      setSongLength(getSongLength(notes));
+    }
+  }, [notes]);
 
   return (
     <div className="w-full max-w-4xl mx-auto flex flex-col gap-2">
