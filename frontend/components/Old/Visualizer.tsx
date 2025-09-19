@@ -19,6 +19,7 @@ export default function Visualizer({isPlaying, xStretch, yPadding, inputRef, cur
   const [notes, setNotes] = useState<any[]>([]);
   const animationRef = useRef<number>(0);
   const startTimeRef = useRef<number>(0);
+  const pausedTimeRef = useRef(0);
 
   // live refs
   const colorsRef = useRef(colors);
@@ -41,12 +42,21 @@ export default function Visualizer({isPlaying, xStretch, yPadding, inputRef, cur
       const arrayBuffer = await file.arrayBuffer();
       const midi = new Midi(arrayBuffer);
 
-      const loadedNotes = midi.tracks.slice(0, 5).flatMap((track, trackIndex) =>
+      // === MAP FIRST 5 OCCUPIED TRACKS ===
+      const occupiedTracks = midi.tracks
+        .map((track, i) => ({ track, index: i }))
+        .filter(t => t.track.notes.length > 0)
+        .slice(0, 5);
+
+      const trackMapping: Record<number, number> = {};
+      occupiedTracks.forEach((t, i) => { trackMapping[t.index] = i });
+
+      const loadedNotes = midi.tracks.flatMap((track, trackIndex) =>
         track.notes.map(n => ({
           midi: n.midi,
           time: n.time,
           duration: n.duration,
-          track: trackIndex
+          track: trackMapping[trackIndex] ?? 0
         }))
       );
 
@@ -66,77 +76,71 @@ export default function Visualizer({isPlaying, xStretch, yPadding, inputRef, cur
   };
 
   const drawPiano = (
-  ctx: CanvasRenderingContext2D,
-  minNote: number,
-  maxNote: number,
-  time: number
-) => {
-  const width = ctx.canvas.clientWidth;
-  const height = ctx.canvas.clientHeight;
-  const { totalKeys, keyHeight } = getKeyMetrics(minNote, maxNote, height, yPaddingRef.current);
+    ctx: CanvasRenderingContext2D,
+    minNote: number,
+    maxNote: number,
+    time: number
+  ) => {
+    const width = ctx.canvas.clientWidth;
+    const height = ctx.canvas.clientHeight;
+    const { totalKeys, keyHeight } = getKeyMetrics(minNote, maxNote, height, yPaddingRef.current);
 
-  const whiteKeys: number[] = [];
-  const blackKeys: number[] = [];
+    const whiteKeys: number[] = [];
+    const blackKeys: number[] = [];
 
-  for (let i = 0; i < totalKeys; i++) {
-    const midi = minNote + i;
-    if (isBlackKey(midi)) blackKeys.push(midi);
-    else whiteKeys.push(midi);
-  }
-
-  // draw whites first
-  [...whiteKeys, ...blackKeys].forEach((midi) => {
-    const activeNotes = notes.filter(
-      (note) => note.midi === midi && time >= note.time && time <= note.time + note.duration
-    );
-
-    let fillColor: string;
-    if (activeNotes.length > 0) {
-      const trackColor = colorsRef.current.tracks[activeNotes[0].track] || "orange";
-      fillColor = isBlackKey(midi)
-        ? Color(trackColor).darken(0.5).saturate(0.3).hex() // darker + more saturated
-        : trackColor;
-    } else {
-      fillColor = isBlackKey(midi) ? colorsRef.current.keys[1] : colorsRef.current.keys[0];
+    for (let i = 0; i < totalKeys; i++) {
+      const midi = minNote + i;
+      if (isBlackKey(midi)) blackKeys.push(midi);
+      else whiteKeys.push(midi);
     }
 
-    ctx.fillStyle = fillColor;
-    ctx.strokeStyle = ctx.fillStyle;
+    [...whiteKeys, ...blackKeys].forEach((midi) => {
+      const activeNotes = notes.filter(
+        (note) => note.midi === midi && time >= note.time && time <= note.time + note.duration
+      );
 
-    const y = yPaddingRef.current + (maxNote - midi) * keyHeight;
+      let fillColor: string;
+      if (activeNotes.length > 0) {
+        const trackColor = colorsRef.current.tracks[activeNotes[0].track] || "orange";
+        fillColor = isBlackKey(midi)
+          ? Color(trackColor).darken(0.5).saturate(0.3).hex()
+          : trackColor;
+      } else {
+        fillColor = isBlackKey(midi) ? colorsRef.current.keys[1] : colorsRef.current.keys[0];
+      }
 
-    if (isBlackKey(midi)) {
-      ctx.fillRect(0, y, width * (2 / 3), keyHeight);
-      ctx.strokeRect(0, y, width * (2 / 3), keyHeight);
-    } else {
-      ctx.fillRect(0, y, width, keyHeight);
-      ctx.strokeRect(0, y, width, keyHeight);
-    }
-  });
-};
+      ctx.fillStyle = fillColor;
+      ctx.strokeStyle = ctx.fillStyle;
 
+      const y = yPaddingRef.current + (maxNote - midi) * keyHeight;
 
-  // Main loop
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const piano = pianoRef.current;
-    if (!canvas || !piano) return;
-
-    const ctx = canvas.getContext("2d");
-    const pianoCtx = piano.getContext("2d");
-    if (!ctx || !pianoCtx) return;
-
-    const dpr = window.devicePixelRatio || 1;
-    [canvas, piano].forEach((c) => {
-      c.width = c.clientWidth * dpr;
-      c.height = c.clientHeight * dpr;
+      if (isBlackKey(midi)) {
+        ctx.fillRect(0, y, width * (2 / 3), keyHeight);
+        ctx.strokeRect(0, y, width * (2 / 3), keyHeight);
+      } else {
+        ctx.fillRect(0, y, width, keyHeight);
+        ctx.strokeRect(0, y, width, keyHeight);
+      }
     });
-    ctx.scale(dpr, dpr);
-    pianoCtx.scale(dpr, dpr);
+  };
 
-    const draw = () => {
-      const time = (performance.now() - startTimeRef.current) / 1000;
-      setCurrentTime(time);
+    const drawFrame = (time: number) => {
+        const canvas = canvasRef.current;
+        const piano = pianoRef.current;
+        if (!canvas || !piano) return;
+
+        const ctx = canvas.getContext("2d");
+        const pianoCtx = piano.getContext("2d");
+        if (!ctx || !pianoCtx) return;
+
+        const dpr = window.devicePixelRatio || 1;
+        [canvas, piano].forEach((c) => {
+          c.width = c.clientWidth * dpr;
+          c.height = c.clientHeight * dpr;
+        });
+        ctx.scale(dpr, dpr);
+        pianoCtx.scale(dpr, dpr);
+
 
       ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
       const width = canvas.clientWidth - 2;
@@ -147,7 +151,6 @@ export default function Visualizer({isPlaying, xStretch, yPadding, inputRef, cur
         const maxNote = Math.max(...notes.map((n) => n.midi));
         const { keyHeight } = getKeyMetrics(minNote, maxNote, height, yPaddingRef.current);
 
-        // background gradient
         const gradient = ctx.createLinearGradient(0, 0, 0, canvas.clientHeight);
         gradient.addColorStop(0, colorsRef.current.background[0]);
         gradient.addColorStop(1, colorsRef.current.background[1]);
@@ -197,7 +200,7 @@ export default function Visualizer({isPlaying, xStretch, yPadding, inputRef, cur
           ctx.fill();
         });
 
-        // Notes (live track colors)
+        // Notes
         notes.forEach((note) => {
           const x = ((note.time - time) / xStretchRef.current) * width + 1;
           const w = (note.duration / xStretchRef.current) * width;
@@ -217,23 +220,38 @@ export default function Visualizer({isPlaying, xStretch, yPadding, inputRef, cur
           ctx.stroke();
         });
 
-        // draw piano
         pianoCtx.clearRect(0, 0, piano.clientWidth, piano.clientHeight);
         drawPiano(pianoCtx, minNote, maxNote, time);
       }
-
-      animationRef.current = requestAnimationFrame(draw);
     };
 
-    if (isPlaying) {
-      startTimeRef.current = performance.now();
-      draw();
-    } else {
-      cancelAnimationFrame(animationRef.current);
-    }
+// Main loop
+useEffect(() => {
+  const animate = () => {
+    const time = (performance.now() - startTimeRef.current) / 1000;
+    setCurrentTime(time);
+    drawFrame(time);
+    animationRef.current = requestAnimationFrame(animate);
+  };
 
-    return () => cancelAnimationFrame(animationRef.current);
-  }, [isPlaying, notes, setCurrentTime]);
+  if (isPlaying) {
+    // resume from paused time
+    startTimeRef.current = performance.now() - pausedTimeRef.current * 1000;
+    animate();
+  } else {
+    // pause: stop animation and keep last frame
+    cancelAnimationFrame(animationRef.current);
+    pausedTimeRef.current = currentTime;
+    drawFrame(pausedTimeRef.current);
+  }
+
+  return () => cancelAnimationFrame(animationRef.current);
+}, [isPlaying, notes, setCurrentTime]);
+
+  // Update colors while paused
+  useEffect(() => {
+    if (!isPlaying) drawFrame(pausedTimeRef.current);
+  }, [colors, isPlaying, notes]);
 
   return (
     <div className="w-full max-w-4xl mx-auto flex flex-col gap-2">
