@@ -83,12 +83,13 @@ export default function Visualizer({isPlaying}: VisualProps) {
           currentTime <= note.time + note.duration
       );
 
-      ctx.fillStyle = isActive
-        ? "blue"
-        : isBlackKey(midi)
-        ? "black"
-        : "white";
-      
+      let fillColor;
+      if (isActive) {
+        fillColor = isBlackKey(midi) ? "#003f7f" : "blue";
+      } else {
+        fillColor = isBlackKey(midi) ? "black" : "white";
+      }
+      ctx.fillStyle = fillColor;
       ctx.strokeStyle = ctx.fillStyle
 
       const y = yPadding + (totalKeys - i - 1) * keyHeight;
