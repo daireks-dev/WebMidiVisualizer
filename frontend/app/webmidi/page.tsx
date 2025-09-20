@@ -1,10 +1,10 @@
 'use client';
-import FileInput from "@/components/FileInput"
-import Settings from "@/components/Settings/Settings"
+import FileInput from "@/webmidi-components/FileInput"
+import Settings from "@/webmidi-components/Settings/Settings"
 import { HexColorPicker } from "react-colorful"
-import VideoControls from "@/components/VideoControls/VideoControls"
+import VideoControls from "@/webmidi-components/VideoControls/VideoControls"
 import { useRef, useState } from "react";
-import Visualizer from "@/components/Old/Visualizer";
+import Visualizer from "@/webmidi-components/Old/Visualizer";
 
 export default function HomeTest() {
     const defaultTheme = {

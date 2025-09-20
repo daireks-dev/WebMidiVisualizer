@@ -1,5 +1,5 @@
 'use client';
-import { Slider } from "@/components/ui/slider"
+import { Slider } from "@/webmidi-components/ui/slider"
 import SquareSpacer from "./SquareSpacer"
 
 interface Props {
