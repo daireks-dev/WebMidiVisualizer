@@ -14,8 +14,8 @@ export default function ToggleSettings({setXStretch, setYPadding, xStretch, yPad
         <div className="w-[97%] flex-1 flex items-center gap-1.5">
             <SplitLabel topText="x_stretch" bottomText="y_padding"/>
             <TwoSlider setXStretch={setXStretch} setYPadding={setYPadding} xStretch={xStretch} yPadding={yPadding}/>
-            <SplitLabel topText="note_outline" bottomText="bg_lines"/>
-            <TwoSlider setXStretch={setXStretch} setYPadding={setYPadding} xStretch={xStretch} yPadding={yPadding}/>
+            {/*<SplitLabel topText="note_outline" bottomText="bg_lines"/>*/}
+            {/*<TwoSlider setXStretch={setXStretch} setYPadding={setYPadding} xStretch={xStretch} yPadding={yPadding}/>*/}
         </div>
     )
 }

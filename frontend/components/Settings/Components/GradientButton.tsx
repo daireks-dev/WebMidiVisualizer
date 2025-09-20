@@ -39,8 +39,8 @@ export default function GradientButton({colors, setColors, id}: ButtonProps) {
     }, [])
    
     return (
-        <div className="h-full">
-            <div className="h-full flex items-center gap-1.5"> 
+        <div className="relative h-full">
+            <div className="relative h-full flex items-center gap-1.5"> 
                 <div className="h-[75%] aspect-square">
                     <div className="h-full w-[calc(200%+6px)] flex flex-col gap-1.5">
                         <button onClick={() => setShowTopPicker((prev) => !prev)} style={{ backgroundColor: topColor }} className="flex-1 drop-shadow-2xl" ref={topButtonRef}>
@@ -60,7 +60,7 @@ export default function GradientButton({colors, setColors, id}: ButtonProps) {
             </div>
 
             {showTopPicker &&
-            <div ref={topPickerRef} className="absolute left-1/2 mt-2 -translate-x-1/2 z-50">
+            <div ref={topPickerRef} className="absolute left-1/2 top-full mt-2 -translate-x-1/2 z-50">
                 <HexColorPicker className="max-h-[21vw] max-w-[21vw] aspect-square" onChange={(newColor) => {
                     const newBackground = [...colors.background]
                     newBackground[0] = newColor
@@ -69,7 +69,7 @@ export default function GradientButton({colors, setColors, id}: ButtonProps) {
             </div>}   
 
             {showBottomPicker &&
-            <div ref={bottomPickerRef} className="absolute left-1/2 mt-2 -translate-x-1/2 z-60">
+            <div ref={bottomPickerRef} className="absolute left-1/2 top-full mt-2 -translate-x-1/2 z-60">
                 <HexColorPicker className="max-h-[21vw] max-w-[21vw] aspect-square" onChange={(newColor) => {
                     const newBackground = [...colors.background]
                     newBackground[1] = newColor

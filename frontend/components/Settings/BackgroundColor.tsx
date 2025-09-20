@@ -15,7 +15,7 @@ export default function BackgroundColor({colors, setColors}: Props) {
             <SquareLabel text="bg_colors"/>
             <GradientButton colors={colors} setColors={setColors} id={1}/>
             <SquareLabel text="key_colors"/>
-            <PianoButton topColor="#FFFFFF" bottomColor="#666666"/>
+            <PianoButton colors={colors} setColors={setColors}/>
         </div>
     )
 }
