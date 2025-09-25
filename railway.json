@@ -1,0 +1,9 @@
+{
+  "build": {
+    "builder": "maven",
+    "root": "backend"
+  },
+  "start": {
+    "command": "java -jar target/*.jar"
+  }
+}
