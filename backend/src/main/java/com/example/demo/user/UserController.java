@@ -25,7 +25,6 @@ public class UserController {
 
     @PostMapping
     public void registerUser(@RequestBody User user) {
-        System.out.println("TESTTTTTT");
         userService.registerUser(user);
     }
 

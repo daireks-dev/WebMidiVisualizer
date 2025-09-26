@@ -49,7 +49,10 @@ public class UserService {
 
         existingUser.setColor(newUser.getColor());
         existingUser.setxZoom(newUser.getxZoom());
-        existingUser.setyZoom(newUser.getyZoom());
+        existingUser.setyPadding(newUser.getyPadding());
+        existingUser.setBackgroundColors(newUser.getBackgroundColors());
+        existingUser.setKeyColors(newUser.getKeyColors());
+        existingUser.setTrackColors(newUser.getTrackColors());
 
     }
 

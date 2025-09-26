@@ -2,6 +2,9 @@ package com.example.demo.user;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+import java.util.Map;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -10,18 +13,54 @@ public class User {
 
     private String color;
     private String lastFile;
-    private Integer xZoom;
-    private Integer yZoom;
+    private Double xZoom;
+    private Double yPadding;
+
+    @ElementCollection
+    private List<String> keyColors;
+
+    @ElementCollection
+    private List<String> trackColors;
+
+    @ElementCollection
+    private List<String> backgroundColors;
 
     public User() {
 
     }
 
-    public User(String id, String color, Integer xZoom, Integer yZoom) {
+    public User(String id, String color, Double xZoom, Double yPadding, List<String> keyColors, List<String> trackColors, List<String> backgroundColors) {
         this.id = id;
         this.color = color;
         this.xZoom = xZoom;
-        this.yZoom = yZoom;
+        this.yPadding = yPadding;
+        this.keyColors = keyColors;
+        this.trackColors = trackColors;
+        this.backgroundColors = backgroundColors;
+    }
+
+    public List<String> getKeyColors() {
+        return keyColors;
+    }
+
+    public void setKeyColors(List<String> keyColors) {
+        this.keyColors = keyColors;
+    }
+
+    public List<String> getTrackColors() {
+        return trackColors;
+    }
+
+    public void setTrackColors(List<String> trackColors) {
+        this.trackColors = trackColors;
+    }
+
+    public List<String> getBackgroundColors() {
+        return backgroundColors;
+    }
+
+    public void setBackgroundColors(List<String> backgroundColors) {
+        this.backgroundColors = backgroundColors;
     }
 
     public String getId() {
@@ -48,20 +87,20 @@ public class User {
         this.lastFile = lastFile;
     }
 
-    public Integer getxZoom() {
+    public Double getxZoom() {
         return xZoom;
     }
 
-    public void setxZoom(Integer xZoom) {
+    public void setxZoom(Double xZoom) {
         this.xZoom = xZoom;
     }
 
-    public Integer getyZoom() {
-        return yZoom;
+    public Double getyPadding() {
+        return yPadding;
     }
 
-    public void setyZoom(Integer yZoom) {
-        this.yZoom = yZoom;
+    public void setyPadding(Double yZoom) {
+        this.yPadding = yZoom;
     }
 }
 
