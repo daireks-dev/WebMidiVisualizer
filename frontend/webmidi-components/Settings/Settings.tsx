@@ -3,17 +3,25 @@ import { useEffect, useRef, useState } from "react";
 import BackgroundColor from "../Settings/BackgroundColor";
 import ToggleSettings from "./ToggleSettings";
 import TrackColors from "./TrackColors";
+import { SendToBackIcon } from "lucide-react";
+
+type Theme = {
+  active: boolean,
+  track_colors: string[];
+  bg_colors: string[];
+  key_colors: string[];
+  xZoom: number;
+  yPadding: number;
+};
 
 interface Props {
-    setXStretch: React.Dispatch<React.SetStateAction<number>>,
-    setYPadding: React.Dispatch<React.SetStateAction<number>>,
-    xStretch: number,
-    yPadding: number,
-    colors: {tracks: string[], background: string[], keys: string[]}
-    setColors: (t: {tracks: string[], background: string[], keys: string[]}) => void
+    currentTheme: Theme
+    setCurrentTheme: (t: Theme) => void
+    themes: Theme[],
+    setThemes: (t: Theme[]) => void
 }
 
-export default function Settings({setXStretch, setYPadding, xStretch, yPadding, colors, setColors}: Props) {
+export default function Settings({themes, setThemes, currentTheme, setCurrentTheme}: Props) {
     const [userId, setUserId] = useState("");
     const saveTimeout = useRef<NodeJS.Timeout | null>(null);
     
@@ -27,16 +35,17 @@ export default function Settings({setXStretch, setYPadding, xStretch, yPadding, 
             storedId = crypto.randomUUID();
             localStorage.setItem("userId", storedId);
 
+            console.log("Posting this: " + JSON.stringify({ 
+                    id: storedId, 
+                    themes: themes
+                }))
+
             await fetch(`http://localhost:8080/api/v1/users`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
                     id: storedId, 
-                    xZoom: xStretch, 
-                    yPadding: yPadding,
-                    trackColors: colors["tracks"], 
-                    backgroundColors: colors["background"],
-                    keyColors: colors["keys"]
+                    themes: themes
                 }),
             });
         }
@@ -48,56 +57,22 @@ export default function Settings({setXStretch, setYPadding, xStretch, yPadding, 
         const response = await fetch(`http://localhost:8080/api/v1/users/${storedId}`);
         if (response.ok) {
             const data = await response.json();
-            setColors({tracks: data.trackColors, keys: data.keyColors, background: data.backgroundColors});
-            setXStretch(data.xZoom);
-            setYPadding(data.yPadding);
+            setThemes(data.themes || []);
+            console.log("GET (result below):")
+            console.log(data.themes)
+        } else {
+            console.error('Failed to fetch user:', response.statusText);
         }
         }
 
         initUUID();
     }, []);
-
-    async function saveSettings() {
-        if (!userId) return;
-
-        const newSettings = {
-            xZoom: xStretch, 
-            yPadding: yPadding, 
-            trackColors: colors["tracks"], 
-            backgroundColors: colors["background"],
-            keyColors: colors["keys"]
-        };
-
-        await fetch(`http://localhost:8080/api/v1/users/${userId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newSettings),
-        });
-
-    }
-
-    useEffect(() => {
-        if (!userId) return;
-
-        // clear previous timeout if exists
-        if (saveTimeout.current) clearTimeout(saveTimeout.current);
-
-        // schedule a new save in 2 seconds
-        saveTimeout.current = setTimeout(() => {
-        saveSettings();
-        }, 2000);
-
-        // optional cleanup on unmount
-        return () => {
-        if (saveTimeout.current) clearTimeout(saveTimeout.current);
-        };
-    }, [xStretch, yPadding, colors, userId]);
     
     return (
         <div className="bg-[#373737] w-full aspect-[5/3] flex flex-col items-center drop-shadow-2xl">
-            <TrackColors colors={colors} setColors={setColors}/>
-            <BackgroundColor colors={colors} setColors={setColors}/>
-            <ToggleSettings setXStretch={setXStretch} setYPadding={setYPadding} xStretch={xStretch} yPadding={yPadding}/>
+            <TrackColors currentTheme={currentTheme} setCurrentTheme ={setCurrentTheme}/>
+            <BackgroundColor currentTheme={currentTheme} setCurrentTheme ={setCurrentTheme}/>
+            <ToggleSettings userId={userId} themes={themes} setThemes={setThemes} currentTheme={currentTheme} setCurrentTheme ={setCurrentTheme}/>
         </div>
     )
 }

@@ -2,20 +2,27 @@
 import { Slider } from "@/webmidi-components/ui/slider"
 import SquareSpacer from "./SquareSpacer"
 
+type Theme = {
+  active: boolean,
+  track_colors: string[];
+  bg_colors: string[];
+  key_colors: string[];
+  xZoom: number;
+  yPadding: number;
+};
+
 interface Props {
-    setXStretch: React.Dispatch<React.SetStateAction<number>>,
-    setYPadding: React.Dispatch<React.SetStateAction<number>>,
-    xStretch: number,
-    yPadding: number
+    currentTheme: Theme,
+    setCurrentTheme: (param: Theme) => void
 }
 
-export default function TwoSlider({setXStretch, setYPadding, xStretch, yPadding}: Props) {
+export default function TwoSlider({setCurrentTheme, currentTheme}: Props) {
     return (
         <div className="h-full flex items-center gap-1.5"> 
             <div className="h-[75%] aspect-square">
                 <div className="h-full w-[calc(200%+6px)] flex flex-col justify-around">
-                    <Slider min={0.5} max={20} step={0.5} value={[xStretch]} onValueChange={(val) => setXStretch(val[0])}/>
-                    <Slider min={0} max={100} step={1} value={[yPadding]} onValueChange={(val) => setYPadding(val[0])}/>
+                    <Slider min={0.5} max={20} step={0.5} value={[currentTheme.xZoom]} onValueChange={(val) => setCurrentTheme({...currentTheme, xZoom: val[0]})}/>
+                    <Slider min={0} max={100} step={1} value={[currentTheme.yPadding]} onValueChange={(val) => setCurrentTheme({...currentTheme, yPadding: val[0]})}/>
                 </div>
             </div>
             <SquareSpacer isVisible={false}/>

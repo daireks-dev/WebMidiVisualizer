@@ -5,18 +5,22 @@ import { Midi } from "@tonejs/midi";
 import Color from "color";
 import * as Tone from "tone";
 
+type Theme = {
+  active: boolean,
+  track_colors: string[];
+  bg_colors: string[];
+  key_colors: string[];
+  xZoom: number;
+  yPadding: number;
+};
+
 interface Props {
   isPlaying: boolean;
-  xStretch: number;
-  yPadding: number;
   inputRef: React.RefObject<HTMLInputElement | null>;
   currentTime: number;
   setCurrentTime: (t: number) => void;
-  colors: {
-    tracks: string[];
-    background: string[];
-    keys: string[];
-  };
+  currentTheme: Theme;
+  setCurrentTheme: (t: Theme) => void;
   songLength: number;
   setSongLength: (v: number) => void;
   isSeeking: boolean;
@@ -25,16 +29,15 @@ interface Props {
 
 export default function Visualizer({
   isPlaying,
-  xStretch,
-  yPadding,
   inputRef,
   currentTime,
   setCurrentTime,
-  colors,
+  currentTheme,
+  setCurrentTheme,
   songLength,
   setSongLength,
   isSeeking,
-  setIsSeeking,
+  setIsSeeking
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const pianoRef = useRef<HTMLCanvasElement | null>(null);
@@ -48,21 +51,21 @@ export default function Visualizer({
   const triggeredNotesRef = useRef<Set<string>>(new Set());
 
   // live refs
-  const colorsRef = useRef(colors);
-  const xStretchRef = useRef(xStretch);
-  const yPaddingRef = useRef(yPadding);
+  const colorsRef = useRef(currentTheme);
+  const xStretchRef = useRef(currentTheme.xZoom);
+  const yPaddingRef = useRef(currentTheme.yPadding);
 
   useEffect(() => {
-    colorsRef.current = colors;
-  }, [colors]);
+    colorsRef.current = currentTheme;
+  }, [currentTheme]);
 
   useEffect(() => {
-    xStretchRef.current = xStretch;
-  }, [xStretch]);
+    xStretchRef.current = currentTheme.xZoom;
+  }, [currentTheme.xZoom]);
 
   useEffect(() => {
-    yPaddingRef.current = yPadding;
-  }, [yPadding]);
+    yPaddingRef.current = currentTheme.yPadding;
+  }, [currentTheme.yPadding]);
 
   // Initialize Tone.js synth
   useEffect(() => {
@@ -174,14 +177,14 @@ export default function Visualizer({
       let fillColor: string;
       if (activeNotes.length > 0) {
         const trackColor =
-          colorsRef.current.tracks[activeNotes[0].track] || "orange";
+          colorsRef.current.track_colors[activeNotes[0].track] || "orange";
         fillColor = isBlackKey(midi)
           ? Color(trackColor).darken(0.5).saturate(0.3).hex()
           : trackColor;
       } else {
         fillColor = isBlackKey(midi)
-          ? colorsRef.current.keys[1]
-          : colorsRef.current.keys[0];
+          ? colorsRef.current.key_colors[1]
+          : colorsRef.current.key_colors[0];
       }
 
       ctx.fillStyle = fillColor;
@@ -235,8 +238,8 @@ export default function Visualizer({
 
     // Background gradient
     const gradient = ctx.createLinearGradient(0, 0, 0, canvas.clientHeight);
-    gradient.addColorStop(0, colorsRef.current.background[0]);
-    gradient.addColorStop(1, colorsRef.current.background[1]);
+    gradient.addColorStop(0, colorsRef.current.bg_colors[0]);
+    gradient.addColorStop(1, colorsRef.current.bg_colors[1]);
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.clientWidth, canvas.clientHeight);
 
@@ -316,7 +319,7 @@ export default function Visualizer({
       ctx.beginPath();
       ctx.shadowBlur = 0;
       ctx.shadowColor = "transparent";
-      ctx.fillStyle = colorsRef.current.tracks[note.track] || "blue";
+      ctx.fillStyle = colorsRef.current.track_colors[note.track] || "blue";
       ctx.roundRect(x, y, w, keyHeight, 1);
       ctx.fill();
 
@@ -356,7 +359,7 @@ export default function Visualizer({
       triggeredNotesRef.current.clear();
       drawFrame(pausedTimeRef.current);
     }
-  }, [currentTime, colors, xStretch, yPadding, isPlaying, notes]);
+  }, [currentTime, currentTheme, isPlaying, notes]);
 
   // Calculate song length
   const getSongLength = (notes: any[]) => {
@@ -375,7 +378,7 @@ export default function Visualizer({
           <canvas
             ref={pianoRef}
             className="absolute inset-0 w-full h-full bg-gray-100"
-            style={{ backgroundColor: Color(colors["keys"][0]).darken(0.1).hex() }}
+            style={{ backgroundColor: Color(currentTheme["key_colors"][0]).darken(0.1).hex() }}
           />
         </div>
         <div className="relative flex-8 aspect-video drop-shadow-2xl">

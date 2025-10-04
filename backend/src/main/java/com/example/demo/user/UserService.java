@@ -31,6 +31,11 @@ public class UserService {
             throw new IllegalStateException("User not provided");
         }
         userRepository.save(user);
+
+        System.out.println(user.getThemes().get(0).getTrack_colors());
+        System.out.println(user.getThemes().get(1).getTrack_colors());
+        System.out.println(user.getThemes().get(2).getTrack_colors());
+        System.out.println(user.getThemes().get(3).getTrack_colors());
     }
 
     public void removeUser(String id) {
@@ -42,18 +47,20 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUser(String id, User newUser) {
-        User existingUser = userRepository.findById(id).orElseThrow(
-                () -> new IllegalStateException("User not found")
-        );
+    public User updateUser(String id, User user) {
+        User existing = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        existingUser.setColor(newUser.getColor());
-        existingUser.setxZoom(newUser.getxZoom());
-        existingUser.setyPadding(newUser.getyPadding());
-        existingUser.setBackgroundColors(newUser.getBackgroundColors());
-        existingUser.setKeyColors(newUser.getKeyColors());
-        existingUser.setTrackColors(newUser.getTrackColors());
+        // Update themes
+        existing.getThemes().clear();
+        if (user.getThemes() != null) {
+            for (Theme theme : user.getThemes()) {
+                theme.setUser(existing); // link to managed User
+                existing.getThemes().add(theme);
+            }
+        }
 
+        return userRepository.save(existing); // save managed entity
     }
 
 }

@@ -5,12 +5,21 @@ import BlackKey from "./BlackKey";
 import WhiteKey from "./WhiteKey";
 import SquareSpacer from "./SquareSpacer";
 
+type Theme = {
+  active: boolean,
+  track_colors: string[];
+  bg_colors: string[];
+  key_colors: string[];
+  xZoom: number;
+  yPadding: number;
+};
+
 interface ButtonProps {
-  colors: { tracks: string[]; background: string[]; keys: string[] };
-  setColors: (t: { tracks: string[]; background: string[]; keys: string[] }) => void;
+  currentTheme: Theme;
+  setCurrentTheme: (t: Theme) => void;
 }
 
-export default function PianoButton({ colors, setColors }: ButtonProps) {
+export default function PianoButton({ currentTheme, setCurrentTheme }: ButtonProps) {
   const [showWhitePicker, setShowWhitePicker] = useState(false);
   const [showBlackPicker, setShowBlackPicker] = useState(false);
 
@@ -48,7 +57,7 @@ export default function PianoButton({ colors, setColors }: ButtonProps) {
               {Array.from({ length: 7 }).map((_, i) => (
                 <WhiteKey
                   key={i}
-                  color={colors.keys[0]}
+                  color={currentTheme.key_colors[0]}
                   onClick={() => setShowWhitePicker(true)}
                 />
               ))}
@@ -56,12 +65,12 @@ export default function PianoButton({ colors, setColors }: ButtonProps) {
 
             {/* Black keys */}
             <div className="absolute w-full h-full flex gap-1.5 z-15 left-[calc(((100%+3px)/7)/2)] pointer-events-none">
-              <BlackKey color={colors.keys[1]} onClick={() => setShowBlackPicker(true)} />
-              <BlackKey color={colors.keys[1]} onClick={() => setShowBlackPicker(true)} />
+              <BlackKey color={currentTheme.key_colors[1]} onClick={() => setShowBlackPicker(true)} />
+              <BlackKey color={currentTheme.key_colors[1]} onClick={() => setShowBlackPicker(true)} />
               <div className="flex-1" />
-              <BlackKey color={colors.keys[1]} onClick={() => setShowBlackPicker(true)} />
-              <BlackKey color={colors.keys[1]} onClick={() => setShowBlackPicker(true)} />
-              <BlackKey color={colors.keys[1]} onClick={() => setShowBlackPicker(true)} />
+              <BlackKey color={currentTheme.key_colors[1]} onClick={() => setShowBlackPicker(true)} />
+              <BlackKey color={currentTheme.key_colors[1]} onClick={() => setShowBlackPicker(true)} />
+              <BlackKey color={currentTheme.key_colors[1]} onClick={() => setShowBlackPicker(true)} />
               <div className="flex-1" />
             </div>
 
@@ -78,11 +87,11 @@ export default function PianoButton({ colors, setColors }: ButtonProps) {
           className="absolute left-1/2 top-full mt-2 -translate-x-1/2 z-50"
         >
           <HexColorPicker
-            color={colors.keys[0]}
+            color={currentTheme.key_colors[0]}
             onChange={(newColor) => {
-              const newKeys = [...colors.keys];
+              const newKeys = [...currentTheme.key_colors];
               newKeys[0] = newColor;
-              setColors({ ...colors, keys: newKeys });
+              setCurrentTheme({ ...currentTheme, key_colors: newKeys });
             }}
             className="max-h-[21vw] max-w-[21vw] aspect-square"
           />
@@ -96,11 +105,11 @@ export default function PianoButton({ colors, setColors }: ButtonProps) {
           className="absolute left-1/2 top-full mt-2 -translate-x-1/2 z-60"
         >
           <HexColorPicker
-            color={colors.keys[1]}
+            color={currentTheme.key_colors[1]}
             onChange={(newColor) => {
-              const newKeys = [...colors.keys];
+              const newKeys = [...currentTheme.key_colors];
               newKeys[1] = newColor;
-              setColors({ ...colors, keys: newKeys });
+              setCurrentTheme({ ...currentTheme, key_colors: newKeys });
             }}
             className="max-h-[21vw] max-w-[21vw] aspect-square"
           />

@@ -2,20 +2,29 @@
 import ColorButton from "./Components/ColorButton";
 import SquareLabel from "./Components/SquareLabel";
 
+type Theme = {
+  active: boolean,
+  track_colors: string[];
+  bg_colors: string[];
+  key_colors: string[];
+  xZoom: number;
+  yPadding: number;
+};
+
 interface Props {
-    colors: {tracks: string[], background: string[], keys: string[]}
-    setColors: (t: {tracks: string[], background: string[], keys: string[]}) => void
+    currentTheme: Theme
+    setCurrentTheme: (t: Theme) => void
 }
 
-export default function TrackColors({colors, setColors}: Props) {
+export default function TrackColors({currentTheme, setCurrentTheme}: Props) {
     return (
         <div className="w-[97%] flex-1 border-b-1 border-[#5f5f5f] flex items-center gap-1.5">
             <SquareLabel text="track_colors"/>
-            <ColorButton colors={colors} setColors={setColors} id={0}/>
-            <ColorButton colors={colors} setColors={setColors} id={1}/>
-            <ColorButton colors={colors} setColors={setColors} id={2}/>
-            <ColorButton colors={colors} setColors={setColors} id={3}/>
-            <ColorButton colors={colors} setColors={setColors} id={4}/>
+            <ColorButton currentTheme={currentTheme} setCurrentTheme ={setCurrentTheme} id={0}/>
+            <ColorButton currentTheme={currentTheme} setCurrentTheme ={setCurrentTheme} id={1}/>
+            <ColorButton currentTheme={currentTheme} setCurrentTheme ={setCurrentTheme} id={2}/>
+            <ColorButton currentTheme={currentTheme} setCurrentTheme ={setCurrentTheme} id={3}/>
+            <ColorButton currentTheme={currentTheme} setCurrentTheme ={setCurrentTheme} id={4}/>
         </div>
     )
 }

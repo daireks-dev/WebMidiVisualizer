@@ -25,6 +25,14 @@ public class UserController {
 
     @PostMapping
     public void registerUser(@RequestBody User user) {
+        if (user.getThemes() != null) {
+            for (Theme theme : user.getThemes()) {
+                if (theme != null) {
+                    theme.setUser(user);
+                    //System.out.println(theme.getKey_colors());
+                }
+            }
+        }
         userService.registerUser(user);
     }
 
