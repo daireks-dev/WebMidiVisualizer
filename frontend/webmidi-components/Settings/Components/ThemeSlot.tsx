@@ -60,7 +60,7 @@ export default function ThemeSlot({currentTheme, setCurrentTheme, slotNumber, th
 
         console.log("Saving this: " + JSON.stringify(newSettings))
 
-        await fetch(`http://localhost:8080/api/v1/users/${userId}`, {
+        await fetch(`https://webmidi-f4545132aa0f.herokuapp.com/api/v1/users/${userId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newSettings),

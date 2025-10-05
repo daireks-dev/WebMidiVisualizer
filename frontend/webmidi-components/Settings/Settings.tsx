@@ -40,7 +40,7 @@ export default function Settings({themes, setThemes, currentTheme, setCurrentThe
                     themes: themes
                 }))
 
-            await fetch(`http://localhost:8080/api/v1/users`, {
+            await fetch(`https://webmidi-f4545132aa0f.herokuapp.com/api/v1/users`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
@@ -54,7 +54,7 @@ export default function Settings({themes, setThemes, currentTheme, setCurrentThe
         setUserId(storedId);
 
         // Fetch settings for this user after ensuring ID exists
-        const response = await fetch(`http://localhost:8080/api/v1/users/${storedId}`);
+        const response = await fetch(`https://webmidi-f4545132aa0f.herokuapp.com/api/v1/users/${storedId}`);
         if (response.ok) {
             const data = await response.json();
             setThemes(data.themes || []);
