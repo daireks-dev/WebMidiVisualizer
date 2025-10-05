@@ -106,7 +106,7 @@ export default function ThemeSlot({currentTheme, setCurrentTheme, slotNumber, th
     return (
         <div  className="relative flex-1 h-full flex justify-center items-center border-1 border-[#888888] hover:border-blue-400 transition group">
             <button onClick={onSlotClick} className="w-full h-full"></button>
-            <h1 className="absolute z-10 text-[min(2.2vw,1rem)] pointer-events-none">{slotName}</h1>
+            <h1 className="absolute z-10 text-[min(2.2vh,2.2vw,1rem)] pointer-events-none">{slotName}</h1>
             {!isEmpty &&
                 <div 
                     className="absolute bg-gradient-to-b from-green-400 to-blue-400 h-full w-full opacity-40 pointer-events-none"
@@ -132,8 +132,8 @@ export default function ThemeSlot({currentTheme, setCurrentTheme, slotNumber, th
                 </div>
             }
             {!isEmpty &&
-                <button onClick={onDeleteClick} className="flex justify-center items-center z-1 absolute aspect-square bg-[#999999] opacity-0 h-[45%] bottom-[100%] translate-y-[50%] left-[100%] translate-x-[-50%] rounded-2xl drop-shadow-2xl hover:bg-[#777777] transition group-hover:opacity-100 ">
-                    <h1 className="transition text-[#EEEEEE] mb-[10%] text-[min(2.2vw,1rem)]">x</h1>
+                <button onClick={onDeleteClick} className="flex justify-center items-center z-1 absolute z-10 aspect-square bg-[#999999] opacity-0 h-[45%] bottom-[100%] translate-y-[50%] left-[100%] translate-x-[-50%] rounded-2xl drop-shadow-2xl hover:bg-[#777777] transition group-hover:opacity-100 ">
+                    <h1 className="transition text-[#EEEEEE] mb-[10%] text-[min(2.2vh,2.2vw,1rem)]">x</h1>
                 </button>
             }
         </div>

@@ -21,7 +21,7 @@ export default function FileInput({inputRef}: Props) {
     return (
         <div className="border-[#626262] border-1 border-dashed w-[min(25%,12rem)] aspect-[12/3] flex justify-center items-center group">
             <input onChange={handleChange} ref={inputRef} type="file" accept=".mid,.midi" className="w-full h-full text-[#2C2C2C]"/>
-            <h1 className={`${inter.className} pointer-events-none absolute font-medium text-[min(2.6vw,1.2rem)] group-hover:text-blue-400 transition`}>{fileName}</h1>
+            <h1 className={`${inter.className} pointer-events-none absolute font-medium text-[min(2.6vh,2.6vw,1.2rem)] group-hover:text-blue-400 transition`}>{fileName}</h1>
         </div>
    )
 }

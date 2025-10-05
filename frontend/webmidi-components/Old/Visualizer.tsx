@@ -102,7 +102,7 @@ export default function Visualizer({
   useEffect(() => {
     if (isPlaying && !demoLoadedRef.current) {
       const fetchDemo = async () => {
-        const response = await fetch("/demo.mid");
+        const response = await fetch("/demo_song.mid");
         const arrayBuffer = await response.arrayBuffer();
         await loadMidi(arrayBuffer);
         demoLoadedRef.current = true; // mark demo as loaded
@@ -277,22 +277,15 @@ export default function Visualizer({
       const isActive = time >= note.time && time <= note.time + note.duration;
 
       // Trigger sound only if playing and doPlayNotes = true
-      if (
-        isActive &&
-        doPlayNotes &&
-        isPlaying &&
-        !triggeredNotesRef.current.has(noteKey)
-      ) {
-        synthRef.current?.triggerAttackRelease(
-          Tone.Frequency(note.midi, "midi").toFrequency(),
-          note.duration
-        );
-        triggeredNotesRef.current.add(noteKey);
-      }
-
-      // Remove note from triggered set if its time has passed
-      if (time > note.time + note.duration) {
-        triggeredNotesRef.current.delete(noteKey);
+      if (isActive && doPlayNotes && isPlaying) {
+        const noteId = `${note.track}-${note.midi}-${note.time}`;
+        if (!triggeredNotesRef.current.has(noteId)) {
+          synthRef.current?.triggerAttackRelease(
+            Tone.Frequency(note.midi, "midi").toFrequency(),
+            note.duration
+          );
+          triggeredNotesRef.current.add(noteId);
+        }
       }
 
       // Shadow
@@ -371,27 +364,38 @@ export default function Visualizer({
     if (notes.length > 0) setSongLength(getSongLength(notes));
   }, [notes]);
 
+  useEffect(() => {
+    if (!isPlaying) {
+      triggeredNotesRef.current.clear(); // allow notes to retrigger if slider moves
+    }
+  }, [currentTime]);
+
   return (
     <div className="w-full max-w-4xl mx-auto flex flex-col gap-2">
-      <div className="flex gap-2 w-full">
-        <div className="relative flex-1 w-16 aspect-video drop-shadow-2xl">
+
+      <div className="flex aspect-video gap-2 w-full">
+
+        <div className="relative flex-1 drop-shadow-2xl">
           <canvas
             ref={pianoRef}
             className="absolute inset-0 w-full h-full bg-gray-100"
             style={{ backgroundColor: Color(currentTheme["key_colors"][0]).darken(0.1).hex() }}
           />
         </div>
-        <div className="relative flex-8 aspect-video drop-shadow-2xl">
+
+        <div className="relative flex-8 drop-shadow-2xl">
           <canvas
             ref={canvasRef}
             className="absolute inset-0 w-full h-full"
           />
           <div className="bg-[#666666] absolute inset-0 w-full h-full z-[-1] flex flex-col items-center justify-center">
-            <h1 className="text-black font-bold">Welcome to WebMidi!</h1>
-            <h1 className="text-[#222222]">Upload a midi file above or press play to show a demo.</h1>
+            <h1 className="text-black font-bold text-[min(2.2vh,2.2vw,1rem)]">Welcome to WebMidi!</h1>
+            <h1 className="text-[#222222] text-[min(2.2vh,2.2vw,1rem)]">Upload a midi file above or press play to show a demo.</h1>
           </div>
         </div>
+
       </div>
+
     </div>
   );
 }

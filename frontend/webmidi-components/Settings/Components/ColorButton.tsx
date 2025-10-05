@@ -38,7 +38,7 @@ export default function ColorButton({id, currentTheme, setCurrentTheme}: ButtonP
         <div className="relative h-[75%] aspect-square">
             <button ref={buttonRef} onClick={() => setShowPicker((prev) => !prev)} style={{ backgroundColor: color }} className="relative w-full h-full drop-shadow-2xl">
                 <div className="bg-black w-full h-full opacity-0 hover:opacity-30 transition flex justify-center items-center">
-                    <h1 className="font-bold text-[min(2.2vw,1rem)]">{color}</h1>
+                    <h1 className="font-bold text-[min(2.2vh,2.2vw,1rem)]">{color}</h1>
                 </div>
             </button>
 
