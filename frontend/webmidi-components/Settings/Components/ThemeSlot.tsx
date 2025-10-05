@@ -109,7 +109,7 @@ export default function ThemeSlot({currentTheme, setCurrentTheme, slotNumber, th
             <h1 className="absolute z-10 text-[min(2.2vh,2.2vw,1rem)] pointer-events-none">{slotName}</h1>
             {!isEmpty &&
                 <div 
-                    className="absolute bg-gradient-to-b from-green-400 to-blue-400 h-full w-full opacity-40 pointer-events-none"
+                    className="absolute bg-gradient-to-b from-green-400 to-blue-400 h-full w-full opacity-60 pointer-events-none"
                     style={{
                         backgroundImage: `linear-gradient(to bottom, ${themes[slotNumber]["bg_colors"][0]}, ${themes[slotNumber]["bg_colors"][1]})`,
                     }}
@@ -121,7 +121,7 @@ export default function ThemeSlot({currentTheme, setCurrentTheme, slotNumber, th
                     {
                         themes[slotNumber]["track_colors"].map((color, index) => (
                         <div
-                            className="bg-white flex-1 h-[20%] z-10 opacity-40 pointer-events-none"
+                            className="bg-white flex-1 h-[20%] z-10 opacity-60 pointer-events-none"
                             style={{
                                 backgroundColor: color,
                                 transform: `translateY(${100 * noteOrder.current[index]}%)`
